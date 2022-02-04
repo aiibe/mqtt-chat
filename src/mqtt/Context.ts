@@ -1,8 +1,4 @@
-import { MqttClient } from "mqtt/dist/mqtt.min";
 import { createContext } from "react";
+import { ContextType } from "./Types";
 
-type ContextType = {
-  client?: MqttClient | null;
-};
-
-export const MQTTContext = createContext({} as ContextType);
+export const MQTTContext = createContext({ client: null } as ContextType);

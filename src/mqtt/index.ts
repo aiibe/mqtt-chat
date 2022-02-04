@@ -1,28 +1,35 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { MQTTContext } from "./Context";
+import { HistoryType } from "./Types";
 
 export const useSubscription = (topic: string) => {
   const { client } = useContext(MQTTContext);
-  const [history, setHistory] = useState<string[]>([]);
+  const [history, setHistory] = useState<HistoryType[]>([]);
+
+  // Subscribe to topic
+  const subscribe = useCallback(() => {
+    client?.subscribe(topic);
+  }, [client]);
 
   // Append message to history
-  const appendMessage = useCallback((topic: string, message: ArrayBuffer) => {
-    setHistory((history) => [...history, message.toString()]);
-  }, []);
+  const appendMessage = useCallback(
+    (topic: string, message: ArrayBuffer) => {
+      setHistory((history) => [
+        ...history,
+        { topic, message: message.toString() },
+      ]);
+    },
+    [topic]
+  );
 
-  // Init
+  // Subscribe and listen for messages
   useEffect(() => {
     if (client?.connected) {
-      // Subscribe
-      client.subscribe(topic, (err) => {
-        if (err) return console.log(err);
-        console.log("> Subscribed to " + topic);
-      });
-
-      // Listen for message and append to history
+      subscribe();
       client.on("message", appendMessage);
     }
-  }, [client?.connected, appendMessage]);
+  }, [client]);
 
+  // Export
   return { client, messages: history };
 };

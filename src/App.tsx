@@ -14,7 +14,8 @@ function App() {
   return (
     <div className="w-1/3 mx-auto mt-4">
       <div className="">
-        {messages.length && messages.map((m, i) => <p key={i}>{m}</p>)}
+        {messages.length &&
+          messages.map((tuple, i) => <p key={i}>{tuple.message}</p>)}
       </div>
       <form onSubmit={handleSubmit}>
         <input
