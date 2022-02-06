@@ -1,31 +1,41 @@
-import { FormEventHandler, useState } from "react";
+import { useState } from "react";
+import Conversation from "./components/Conversation";
+import Join from "./components/Join";
+import MessageInput from "./components/MessageInput";
+import Users from "./components/Users";
 import { useSubscription } from "./mqtt";
 
 function App() {
-  const { client, messages } = useSubscription("presence");
-  const [message, setMessage] = useState("");
+  const { client, clientId, messages } = useSubscription(["presence", "chat"]);
+  const [selfJoined, setSelfJoined] = useState(false);
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-    client?.publish("presence", message);
-    setMessage("");
+  const handleJoin = (username: string | undefined) => {
+    client?.publish("presence", `${clientId}#${username}`);
+    setSelfJoined(true);
+  };
+
+  const handleSendMessage = (message: string) => {
+    client?.publish("chat", `${clientId}#${message}`);
   };
 
   return (
-    <div className="w-1/3 mx-auto mt-4">
-      <div className="">
-        {messages.length &&
-          messages.map((tuple, i) => <p key={i}>{tuple.message}</p>)}
+    <div className="w-80 mx-auto mt-4">
+      <div className="border rounded-md">
+        {/* Online users */}
+        <Users />
+
+        {/* Conversations */}
+        <Conversation />
+
+        {/* Input */}
+        <div className="p-2">
+          {!selfJoined ? (
+            <Join onSubmit={handleJoin} />
+          ) : (
+            <MessageInput onSubmit={handleSendMessage} />
+          )}
+        </div>
       </div>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          className="border"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
-        <button type="submit">Send</button>
-      </form>
     </div>
   );
 }

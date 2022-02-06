@@ -2,8 +2,8 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { MQTTContext } from "./Context";
 import { HistoryType } from "./Types";
 
-export const useSubscription = (topic: string) => {
-  const { client } = useContext(MQTTContext);
+export const useSubscription = (topic: string | string[]) => {
+  const { client, clientId } = useContext(MQTTContext);
   const [history, setHistory] = useState<HistoryType[]>([]);
 
   // Subscribe to topic
@@ -31,5 +31,5 @@ export const useSubscription = (topic: string) => {
   }, [client]);
 
   // Export
-  return { client, messages: history };
+  return { client, messages: history, clientId };
 };

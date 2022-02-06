@@ -8,6 +8,7 @@ export type MQTTProviderType = {
 
 export type ContextType = {
   client: MqttClient | null;
+  clientId: string;
 };
 
 export type HistoryType = {
